@@ -4,6 +4,8 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +24,12 @@ import com.amap.api.location.AMapLocationClientOption.AMapLocationMode;
 import com.amap.api.location.AMapLocationClientOption.AMapLocationProtocol;
 import com.amap.api.location.AMapLocationListener;
 import com.amap.api.location.AMapLocationQualityReport;
+
+import org.kymjs.kjframe.KJHttp;
+import org.kymjs.kjframe.http.HttpCallBack;
+import org.kymjs.kjframe.http.HttpParams;
+import org.kymjs.kjframe.ui.ViewInject;
+import org.kymjs.kjframe.utils.KJLoger;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -56,6 +64,8 @@ public class MainActivity extends CheckPermissionsActivity
 	private AMapLocationClientOption locationOption = null;
 
 	Intent serviceIntent = null;
+	String szImei;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -65,6 +75,12 @@ public class MainActivity extends CheckPermissionsActivity
 
 		serviceIntent = new Intent();
 		serviceIntent.setClass(this,LocationForegoundService.class);
+
+		TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)==0)
+		{
+			szImei = TelephonyMgr.getDeviceId();// 唯一标识码
+		}
 
 		initView();
 		
@@ -273,6 +289,49 @@ public class MainActivity extends CheckPermissionsActivity
 				//解析定位结果，
 				String result = sb.toString();
 				tvResult.setText(result);
+
+				// 网络请求
+				KJHttp kjh = new KJHttp();
+				HttpParams params = new HttpParams();
+				params.put("tel", "");
+				//params.put("rec", "");
+				params.put("x", Double.toString(location.getLongitude()));
+				params.put("y", Double.toString(location.getLatitude()));
+				params.put("speed", Float.toString(location.getSpeed()));
+				params.put("time", formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
+				params.put("accuracy", location.getAccuracy() + "米");
+				params.put("deviceid", szImei);
+				kjh.post("http://www.maomx.cn/position/postposition", params,
+						//kjh.post("http://localhost:29256/position/postposition", params,
+						new HttpCallBack() {
+							@Override
+							public void onPreStart() {
+								super.onPreStart();
+								KJLoger.debug("即将开始http请求");
+								// et.setText("即将开始http请求");
+							}
+
+							@Override
+							public void onSuccess(String t) {
+								super.onSuccess(t);
+								ViewInject.longToast("请求成功");
+								KJLoger.debug("请求成功:" + t.toString());
+								// et.setText("请求成功:" + t.toString());
+							}
+
+							@Override
+							public void onFailure(int errorNo, String strMsg) {
+								super.onFailure(errorNo, strMsg);
+								KJLoger.debug("出现异常:" + strMsg);
+								// et.setText("出现异常:" + strMsg);
+							}
+
+							@Override
+							public void onFinish() {
+								super.onFinish();
+								KJLoger.debug("请求完成，不管成功还是失败");
+							}
+						});
 			} else {
 				tvResult.setText("定位失败，loc is null");
 			}

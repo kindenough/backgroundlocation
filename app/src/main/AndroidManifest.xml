@@ -49,7 +49,7 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="您申请的KEY" />
+            android:value="9de66c6f643406e77d8d5ec73d9ba17d" />
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
