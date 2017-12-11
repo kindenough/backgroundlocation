@@ -23,6 +23,9 @@ implements View.OnClickListener {
 
         btnMap = (Button)findViewById(R.id.btnMap);
         btnMap.setOnClickListener(this);
+
+        Intent intent = new Intent(this,MapActivity.class);
+        startActivity(intent);
     }
 
     @Override

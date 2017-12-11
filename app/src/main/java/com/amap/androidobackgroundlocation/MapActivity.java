@@ -4,9 +4,16 @@ import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdateFactory;
+import com.amap.api.maps2d.LocationSource;
+import com.amap.api.maps2d.LocationSource.OnLocationChangedListener;
 import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
@@ -14,16 +21,24 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
 
-public class MapActivity extends AppCompatActivity implements View.OnClickListener {
+public class MapActivity extends AppCompatActivity implements View.OnClickListener,AMapLocationListener {
 
     MapView mMapView = null;
     private MarkerOptions markerOption;
     private AMap aMap;
     private LatLng latlng = new LatLng(24.481128, 118.185798);
+
+    AMapLocationClient mlocationClient;
+    AMapLocationClientOption mLocationOption;
+
+    TextView tv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        tv = (TextView)findViewById(R.id.textView);
+        tv.setText(MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
 
         // 获取地图控件引用
         mMapView = (MapView) findViewById(R.id.map);
@@ -63,5 +78,10 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     public void onClick(View view) {
 
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
+        tv.setText(MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
     }
 }
