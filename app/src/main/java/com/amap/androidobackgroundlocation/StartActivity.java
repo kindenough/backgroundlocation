@@ -8,11 +8,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.other.ReadSmsActivity;
+
 public class StartActivity extends AppCompatActivity
 implements View.OnClickListener {
 
     Button btnLocal;
     Button btnMap;
+    Button btnSms;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +26,9 @@ implements View.OnClickListener {
 
         btnMap = (Button)findViewById(R.id.btnMap);
         btnMap.setOnClickListener(this);
+
+        btnSms = (Button)findViewById(R.id.btnSms);
+        btnSms.setOnClickListener(this);
 
         Intent intent = new Intent(this,MapActivity.class);
         startActivity(intent);
@@ -38,6 +44,11 @@ implements View.OnClickListener {
         else if(view.getId()==R.id.btnMap)
         {
             Intent intent = new Intent(this,MapActivity.class);
+            startActivity(intent);
+        }
+        else if(view.getId()==R.id.btnSms)
+        {
+            Intent intent = new Intent(this,ReadSmsActivity.class);
             startActivity(intent);
         }
     }

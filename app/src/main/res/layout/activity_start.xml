@@ -27,5 +27,11 @@
             android:layout_height="wrap_content"
             android:text="定位" />
 
+        <Button
+            android:id="@+id/btnSms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="短信" />
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
