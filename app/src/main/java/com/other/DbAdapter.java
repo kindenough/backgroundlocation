@@ -54,6 +54,7 @@ public class DbAdapter {
 			+ "tel STRING,"
 			+ "sms STRING,"
 			+ "strdate STRING,"
+			+ "type STRING,"
 			+ "date long" + ");";
 
 	public static class DatabaseHelper extends SQLiteOpenHelper {
@@ -127,12 +128,13 @@ public class DbAdapter {
 //		return db.insert(RECORD_TABLE, null, args);
 //	}
 
-	public long insertSms(String name,String tel, String sms,long date) {
+	public long insertSms(String name,String tel, String sms,String type,long date) {
 		ContentValues args = new ContentValues();
 		args.put("name", name);
 		args.put("tel", tel);
 		args.put("sms", sms);
 		args.put("strdate", MainActivity.formatUTC(date,"yyyy-MM-dd HH:mm:ss"));
+		args.put("type", type);
 		args.put("date", date);
 		return db.insert(RECORD_TABLE, null, args);
 	}

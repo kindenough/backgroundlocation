@@ -38,9 +38,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!-- 3.2.0版本增加 -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.READ_SMS"></uses-permission>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
-    <uses-permission android:name="android.permission.READ_SMS" >
-    </uses-permission>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -77,7 +78,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MapActivity" />
-        <activity android:name="com.other.ReadSmsActivity"></activity>
+        <activity android:name="com.other.ReadSmsActivity" />
+        <activity android:name="com.other.widgetActivity"></activity>
     </application>
 
 </manifest>

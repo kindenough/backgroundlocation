@@ -1,9 +1,13 @@
 package com.amap.androidobackgroundlocation;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -32,6 +36,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     AMapLocationClientOption mLocationOption;
 
     TextView tv;
+
+    Button btnAdd;
+    Button btnCreate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +46,11 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
         tv = (TextView)findViewById(R.id.textView);
         tv.setText(MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
+
+        btnAdd = (Button)findViewById(R.id.btnAdd);
+        btnAdd.setOnClickListener(this);
+        btnCreate = (Button)findViewById(R.id.btnCreate);
+        btnCreate.setOnClickListener(this);
 
         // 获取地图控件引用
         mMapView = (MapView) findViewById(R.id.map);
@@ -77,11 +89,37 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-
+        switch (view.getId())
+        {
+            case R.id.btnAdd:
+                inputTitleDialog();
+                break;
+            case R.id.btnCreate:
+                inputTitleDialog();
+                break;
+                default:
+                    break;
+        }
     }
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         tv.setText(MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
+    }
+    private void inputTitleDialog() {
+        final EditText inputServer;
+        inputServer = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("输入6位数的队伍编号").setIcon(android.R.drawable.ic_dialog_info).setView(inputServer)
+                .setNegativeButton("取消", null);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @SuppressLint("ResourceAsColor")
+            public void onClick(DialogInterface dialog, int which) {
+                String s = inputServer.getText().toString();
+                tv.setText("队伍口号："+s);
+                tv.setBackgroundColor(R.color.colorPrimaryDark);
+            }
+        });
+        builder.show();
     }
 }

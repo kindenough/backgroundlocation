@@ -1,27 +1,50 @@
 package com.other;
 
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.amap.androidobackgroundlocation.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ReadSmsActivity extends AppCompatActivity {
+public class ReadSmsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private DbAdapter DbHepler;
+    Button btnSms;
+    Button btnContact;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_read_sms);
 
-        getSmsInPhone();
+        btnSms = (Button)findViewById(R.id.btnSms);
+        btnSms.setOnClickListener(this);
+        btnContact = (Button)findViewById(R.id.btnContact);
+        btnContact.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId()==R.id.btnSms)
+        {
+            getSmsInPhone();
+        }
+        else if(view.getId()==R.id.btnContact)
+        {
+            queryContactPhoneNumber();
+        }
     }
 
     public String getSmsInPhone()
@@ -70,7 +93,15 @@ public class ReadSmsActivity extends AppCompatActivity {
                         type = "接收";
                         if (phoneNumber.equals("95533"))
                         {
-                            DbHepler.insertSms(name,phoneNumber,smsbody,Long.parseLong(cur.getString(dateColumn)));
+                            if (smsbody.contains("工资"))
+                            {
+                                Pattern pt = Pattern.compile("[0-9]+[.][0-9]+");
+                                Matcher match = pt.matcher(smsbody);
+                                if (match.find()) {
+                                    //System.out.println(match.group());
+                                    name = match.group();
+                                }
+                            }
                         }
                     } else if(typeId == 2){
                         type = "发送";
@@ -78,6 +109,7 @@ public class ReadSmsActivity extends AppCompatActivity {
                         type = "";
                     }
 
+                    DbHepler.insertSms(name,phoneNumber,smsbody,type,Long.parseLong(cur.getString(dateColumn)));
 
 //                    smsBuilder.append("[");
 //                    smsBuilder.append(name+",");
@@ -99,5 +131,25 @@ public class ReadSmsActivity extends AppCompatActivity {
             Log.d("SQLiteException in getSmsInPhone", ex.getMessage());
         }
         return smsBuilder.toString();
+    }
+
+    private void queryContactPhoneNumber() {
+        String[] cols = {ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
+        Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                cols, null, null, null);
+        DbHepler = new DbAdapter(this);
+        DbHepler.open();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            cursor.moveToPosition(i);
+            // 取得联系人名字
+            int nameFieldColumnIndex = cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME);
+            int numberFieldColumnIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+            String name = cursor.getString(nameFieldColumnIndex);
+            String number = cursor.getString(numberFieldColumnIndex);
+            //Toast.makeText(this, name + " " + number, Toast.LENGTH_SHORT).show();
+
+            DbHepler.insertSms(name,number,"","联系人",System.currentTimeMillis());
+        }
+        DbHepler.close();
     }
 }
