@@ -10,6 +10,9 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 
+//1.神秘模式 应用权限 允许定位
+//2.wlan高级 永不休眠
+
 /**
  * Created by hongming.wang on 2017/9/13.
  * 前台定位service
@@ -31,9 +34,9 @@ public class LocationForegoundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //Android O上才显示通知栏
-        if(Build.VERSION.SDK_INT >= 26) {
+        //if(Build.VERSION.SDK_INT >= 19){//26) {
             showNotify();
-        }
+        //}
         return super.onStartCommand(intent, flags, startId);
     }
 

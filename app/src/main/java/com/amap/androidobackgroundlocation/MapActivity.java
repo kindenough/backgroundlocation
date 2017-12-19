@@ -2,9 +2,11 @@ package com.amap.androidobackgroundlocation;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.location.Location;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,8 +24,15 @@ import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.amap.api.maps2d.model.LatLng;
+import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
+
+import org.kymjs.kjframe.KJHttp;
+import org.kymjs.kjframe.http.HttpCallBack;
+import org.kymjs.kjframe.http.HttpParams;
+import org.kymjs.kjframe.ui.ViewInject;
+import org.kymjs.kjframe.utils.KJLoger;
 
 public class MapActivity extends AppCompatActivity implements View.OnClickListener,AMapLocationListener {
 
@@ -39,6 +48,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     Button btnAdd;
     Button btnCreate;
+    Button btnOut;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +61,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         btnAdd.setOnClickListener(this);
         btnCreate = (Button)findViewById(R.id.btnCreate);
         btnCreate.setOnClickListener(this);
+        btnOut = (Button)findViewById(R.id.btnOut);
+        btnOut.setOnClickListener(this);
 
         // 获取地图控件引用
         mMapView = (MapView) findViewById(R.id.map);
@@ -76,14 +88,25 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         aMap.setMyLocationStyle(myLocationStyle);//设置定位蓝点的Style
 //aMap.getUiSettings().setMyLocationButtonEnabled(true);设置默认定位按钮是否显示，非必需设置。
         aMap.setMyLocationEnabled(true);// 设置为true表示启动显示定位蓝点，false表示隐藏定位蓝点并不进行定位，默认是false。
+
+        aMap.setOnMyLocationChangeListener(new AMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                //从location对象中获取经纬度信息，地址描述信息，建议拿到位置之后调用逆地理编码接口获取
+                tv.setText("onMyLocationChange"+MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
+            }
+        });
+
     }
-    private void addMarkersToMap() {
+
+    private void addMarkersToMap(LatLng ll,String tel,String time) {
         // TODO Auto-generated method stub
         markerOption = new MarkerOptions()
                 .icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                .position(latlng).draggable(true);
-        aMap.addMarker(markerOption);
+                .position(ll).draggable(true).title(tel).snippet(time);
+        aMap.addMarker(markerOption).showInfoWindow();
+
         aMap.moveCamera(CameraUpdateFactory.changeLatLng(latlng));
     }
 
@@ -97,6 +120,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             case R.id.btnCreate:
                 inputTitleDialog();
                 break;
+            case R.id.btnOut:
+                inputTitleDialog();
+                break;
                 default:
                     break;
         }
@@ -104,8 +130,10 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        tv.setText(MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
+        tv.setText("onLocationChanged"+MainActivity.formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
     }
+
+
     private void inputTitleDialog() {
         final EditText inputServer;
         inputServer = new EditText(this);
@@ -118,8 +146,59 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 String s = inputServer.getText().toString();
                 tv.setText("队伍口号："+s);
                 tv.setBackgroundColor(R.color.colorPrimaryDark);
+
+                getPts();
             }
         });
         builder.show();
+    }
+
+    private String getPts()
+    {
+        // 网络请求
+        KJHttp kjh = new KJHttp();
+        kjh.get("http://www.maomx.cn/position/get/0",
+                //kjh.post("http://localhost:29256/position/postposition", params,
+                new HttpCallBack() {
+                    @Override
+                    public void onPreStart() {
+                        super.onPreStart();
+                        KJLoger.debug("即将开始http请求");
+                        // et.setText("即将开始http请求");
+                    }
+
+                    @Override
+                    public void onSuccess(String t) {
+                        super.onSuccess(t);
+                        ViewInject.longToast("请求成功");
+                        KJLoger.debug("请求成功:" + t.toString());
+
+                        String[]  lst = t.split(";");
+                        aMap.clear();
+                        for (int i=0;i<lst.length-1;i++)
+                        {
+                            String[] info = lst[i].split(",");
+                            KJLoger.debug("xy:" + info[1]+","+info[2]);
+                            LatLng ll = new LatLng(Double.valueOf(info[2]),Double.valueOf(info[1]));
+                            addMarkersToMap(ll,info[0],info[3]);
+                        }
+
+                        // et.setText("请求成功:" + t.toString());
+                    }
+
+                    @Override
+                    public void onFailure(int errorNo, String strMsg) {
+                        super.onFailure(errorNo, strMsg);
+                        KJLoger.debug("出现异常:" + strMsg);
+                        // et.setText("出现异常:" + strMsg);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        super.onFinish();
+                        KJLoger.debug("请求完成，不管成功还是失败");
+                    }
+                });
+        return "";
     }
 }

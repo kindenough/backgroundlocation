@@ -75,7 +75,7 @@ public class MainActivity extends CheckPermissionsActivity
 
 		serviceIntent = new Intent();
 		serviceIntent.setClass(this,LocationForegoundService.class);
-
+		serviceIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		TelephonyManager TelephonyMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)==0)
 		{
@@ -125,7 +125,7 @@ public class MainActivity extends CheckPermissionsActivity
 		super.onResume();
 		//如果要一直显示可以不执行
 		if(null != serviceIntent){
-			stopService(serviceIntent);
+			//stopService(serviceIntent);
 		}
 	}
 
@@ -137,7 +137,7 @@ public class MainActivity extends CheckPermissionsActivity
 
 		//如果要一直显示可以不执行
 		if(null != serviceIntent){
-			stopService(serviceIntent);
+			//stopService(serviceIntent);
 		}
 
 	}
@@ -301,6 +301,8 @@ public class MainActivity extends CheckPermissionsActivity
 				params.put("time", formatUTC(System.currentTimeMillis(),"yyyy-MM-dd HH:mm:ss"));
 				params.put("accuracy", location.getAccuracy() + "米");
 				params.put("deviceid", szImei);
+				params.put("angle", Float.toString(location.getBearing()));
+				params.put("teamid", "0");
 				kjh.post("http://www.maomx.cn/position/postposition", params,
 						//kjh.post("http://localhost:29256/position/postposition", params,
 						new HttpCallBack() {

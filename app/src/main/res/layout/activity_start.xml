@@ -41,10 +41,10 @@
                 android:text="短信/联系人" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/btnPost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Button" />
+                android:text="POST" />
 
             <Button
                 android:id="@+id/btnWidget"
@@ -53,22 +53,22 @@
                 android:text="Widget" />
 
             <Button
-                android:id="@+id/button10"
+                android:id="@+id/btnDateTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Button" />
+                android:text="选择日期时间" />
 
             <Button
-                android:id="@+id/button9"
+                android:id="@+id/btnShare"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Button" />
+                android:text="系统自带分享" />
 
             <Button
-                android:id="@+id/button8"
+                android:id="@+id/btnInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Button" />
+                android:text="手机信息获取" />
 
             <Button
                 android:id="@+id/button7"
